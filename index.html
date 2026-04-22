@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>game untuk nadabening</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ffb6c1;
+            --primary-dark: #ff8da1;
+            --bg: #e6f2ff;
+            /* Light blue background as in screenshots */
+            --text: #555;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            text-align: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+
+        .active {
+            display: flex;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        h1 {
+            color: var(--primary-dark);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        p {
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            max-width: 400px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 182, 193, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 182, 193, 0.6);
+            background-color: var(--primary-dark);
+        }
+
+        /* Game 1: Floating Hearts */
+        #game1-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .status-badge {
+            background: white;
+            border: 2px solid var(--primary);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text);
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            white-space: nowrap;
+        }
+
+        .instruction {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #777;
+            z-index: 10;
+        }
+
+        .floating-heart {
+            position: absolute;
+            font-size: 2.5rem;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .floating-heart:active {
+            transform: scale(0.8);
+        }
+
+        /* Game 2: Memory */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 65px);
+            grid-gap: 10px;
+            margin-top: 60px;
+        }
+
+        .memory-card {
+            width: 65px;
+            height: 65px;
+            background-color: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: transform 0.3s;
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .memory-card.flip {
+            transform: rotateY(180deg);
+            background-color: white;
+            border: 2px solid var(--primary);
+        }
+
+        .memory-card .front,
+        .memory-card .back {
+            position: absolute;
+            backface-visibility: hidden;
+        }
+
+        .memory-card .front {
+            transform: rotateY(180deg);
+        }
+
+        .memory-card .back {
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        /* Modal popup */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            border: 3px solid var(--primary);
+            text-align: center;
+            max-width: 320px;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal h2 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            font-style: italic;
+            font-size: 1.8rem;
+        }
+
+        /* Game 3: Word Search */
+        .word-search-text {
+            background: white;
+            border: 2px dashed var(--primary);
+            padding: 15px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            max-width: 320px;
+            margin-bottom: 20px;
+            margin-top: 40px;
+            color: #555;
+        }
+
+        .word-search-text span {
+            font-weight: bold;
+            color: var(--primary-dark);
+        }
+
+        .word-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 28px);
+            grid-gap: 3px;
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin: 0 auto;
+            width: fit-content;
+        }
+
+        .word-cell {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: #fdf2f8;
+            /* Soft pink */
+            border-radius: 5px;
+            cursor: pointer;
+            color: #555;
+        }
+
+        .word-cell.selected {
+            background: #bae6fd;
+            /* light blue selection */
+            color: #0369a1;
+        }
+
+        .word-cell.found {
+            background: #bae6fd;
+            color: #0369a1;
+            transition: background 0.3s;
+        }
+
+        /* Final Message */
+        .final-message {
+            background: white;
+            padding: 35px 25px;
+            border-radius: 20px;
+            max-width: 350px;
+            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.3);
+            border-top: 5px solid var(--primary);
+        }
+
+        /* Add floating background particles */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 10s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+            }
+
+            100% {
+                transform: translateY(-10vh) rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="particles" id="particles"></div>
+
+    <!-- Screen 0: Welcome -->
+    <div id="screen-0" class="screen active">
+        <div
+            style="z-index: 2; position:relative; background: rgba(255,255,255,0.7); padding: 30px; border-radius: 20px;">
+            <h1 style="color:var(--primary-dark)">Hi, Nadaa!</h1>
+            <p>Ada beberapa game random buat kamu nih. Turn on the music first yaa 🎵</p>
+            <button class="btn" onclick="startGame(1)">Mulai Main 💖</button>
+        </div>
+    </div>
+
+    <!-- Screen 1: Catch Hearts -->
+    <div id="screen-1" class="screen">
+        <div class="status-badge">🎵 Hati yang kena: <span id="g1-score">0</span> / 14</div>
+        <div class="instruction">TAP TO SHOOT THE HEART!</div>
+        <div id="game1-container"></div>
+    </div>
+
+    <!-- Screen 2: Memory Game -->
+    <div id="screen-2" class="screen">
+        <div class="status-badge">⏳ Waktu: <span id="g2-time">0</span>s | 🍷 Cocok: <span id="g2-score">0</span> / 8
+        </div>
+        <div class="memory-grid" id="memory-grid"></div>
+    </div>
+
+    <!-- Screen 3: Word Search -->
+    <div id="screen-3" class="screen">
+        <div class="status-badge" style="position:relative; top:0; margin-bottom: 5px;">🔍 Kata ditemukan: <span
+                id="g3-score">0</span> / 7</div>
+        <div class="word-search-text">
+            "I just want you to know that because you are the most <span>BEAUTIFUL</span> person I ever met, I want to
+            give all my <span>LOVE</span> to you. I really hope this lasts <span>FOREVER</span>, because you bring so
+            much <span>HAPPINESS</span> into my life. I'm so glad you are <span>MINE</span>, you <span>CUTE</span>
+            little human. Truly, you mean <span>EVERYTHING</span> to me."<br><br>
+            <small style="color:#999">(Drag/usap huruf di bawah untuk mencari kata di atas!)</small>
+        </div>
+        <div class="word-grid" id="word-grid"></div>
+    </div>
+
+    <!-- Screen 4: Final Message -->
+    <div id="screen-4" class="screen">
+        <div class="final-message">
+            <h2 style="color:var(--primary-dark); font-style:italic; margin-bottom:20px; font-size:1.8rem;">Untuk Nadaa,
+            </h2>
+            <p>Yeeyy, selamat kamu udah menangin game ini 🎮</p>
+            <p>Makasih yaa udah nyempetin waktu buat nyelesain game yang ga seberapa ini dari aku.</p>
+            <p>Semoga hari ini kamu terhibur dan sempet senyum yaa 🥰</p>
+            <p>Tapi jangan lama-lama senyumnya, nanti banyak semut dateng 🤭</p>
+            <p>Aku di sini bakal terus berusaha jadi alasan kecil kamu buat senyum tiap hari 🌸</p>
+            <p style="font-weight:bold; font-style:italic; margin-top:20px; color:var(--primary-dark);">Sampai jumpa di
+                game selanjutnya..<br>Daahhh, I love youuu naadd 🫶</p>
+            <button class="btn" onclick="location.reload()" style="margin-top:20px;">Ulangi dari Awal</button>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-g1" class="modal-overlay">
+        <div class="modal">
+            <h2>You Won!</h2>
+            <p style="margin-bottom: 20px;">Asikk bisa nangkep semua cintaku eaaa 😆 Lanjut ke game ke-2 yuk!</p>
+            <button class="btn" onclick="closeModal('modal-g1'); startGame(2)">Next Game ✨</button>
+        </div>
+    </div>
+
+    <div id="modal-g2" class="modal-overlay">
+        <div class="modal">
+            <h2>You Won!</h2>
+            <p style="margin-bottom: 20px;">Kerenn bangett! Ingatan kamu ternyata kuat juga ya, sekuat perasaan aku ke
+                kamu ahaayy. Ayo lanjut ke game ke-3!</p>
+            <button class="btn" onclick="closeModal('modal-g2'); startGame(3)">Next Game ✨</button>
+        </div>
+    </div>
+
+    <div id="modal-g3" class="modal-overlay">
+        <div class="modal">
+            <h2>Yeayy Berhasil!</h2>
+            <p style="margin-bottom: 20px;">Pinter banget sihh Naddd Ada satu pesan terakhir nih
+                buat kamu..</p>
+            <button class="btn" onclick="closeModal('modal-g3'); startGame(4)">Baca Pesan 💌</button>
+        </div>
+    </div>
+
+    <!-- Background Music -->
+    <audio id="bg-music" loop>
+        <!-- Menggunakan file lokal untuk durasi FULL dan TANPA IKLAN -->
+        <source src="jatuh_suka.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 25; i++) {
+            let p = document.createElement('div');
+            p.classList.add('particle');
+            p.style.width = Math.random() * 12 + 5 + 'px';
+            p.style.height = p.style.width;
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.animationDuration = Math.random() * 10 + 10 + 's';
+            p.style.animationDelay = Math.random() * 5 + 's';
+            particlesContainer.appendChild(p);
+        }
+
+        // Screen Logic
+        function startGame(screenIdx) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-' + screenIdx).classList.add('active');
+
+            if (screenIdx === 1) {
+                // Play music
+                let audio = document.getElementById('bg-music');
+                audio.volume = 0.5;
+                audio.play().catch(e => console.log("Audio play prevented or file not found: ", e));
+                initGame1();
+            } else if (screenIdx === 2) {
+                initGame2();
+            } else if (screenIdx === 3) {
+                initGame3();
+            }
+        }
+
+        function showModal(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        // --- Game 1: Catch Hearts ---
+        let g1Score = 0;
+        let g1Target = 14;
+        let g1Interval;
+
+        function initGame1() {
+            g1Score = 0;
+            document.getElementById('g1-score').innerText = g1Score;
+            document.getElementById('game1-container').innerHTML = '';
+
+            g1Interval = setInterval(spawnHeart, 800);
+        }
+
+        function spawnHeart() {
+            if (document.getElementById('screen-1').classList.contains('active') === false) {
+                clearInterval(g1Interval);
+                return;
+            }
+            let heart = document.createElement('div');
+            heart.classList.add('floating-heart');
+            heart.innerHTML = ['💖', '💗', '💓', '💞'][Math.floor(Math.random() * 4)];
+            heart.style.left = Math.random() * 80 + 10 + '%';
+            heart.style.top = Math.random() * 80 + 10 + '%';
+
+            heart.onclick = function () {
+                this.remove();
+                g1Score++;
+                document.getElementById('g1-score').innerText = g1Score;
+                createPop(this.style.left, this.style.top);
+                if (g1Score >= g1Target) {
+                    clearInterval(g1Interval);
+                    setTimeout(() => showModal('modal-g1'), 500);
+                }
+            };
+
+            document.getElementById('game1-container').appendChild(heart);
+            setTimeout(() => { if (heart.parentNode) heart.remove(); }, 2000);
+        }
+
+        function createPop(x, y) {
+            let pop = document.createElement('div');
+            pop.innerText = '✨';
+            pop.style.position = 'absolute';
+            pop.style.left = x; pop.style.top = y;
+            pop.style.animation = 'fadeIn 0.5s forwards';
+            document.getElementById('game1-container').appendChild(pop);
+            setTimeout(() => pop.remove(), 500);
+        }
+
+        // --- Game 2: Memory ---
+        const fruits = ['🍓', '🍓', '🍌', '🍌', '🥝', '🥝', '🍉', '🍉', '🍊', '🍊', '🍇', '🍇', '🍒', '🍒', '🍍', '🍍'];
+        let g2Cards = [];
+        let g2Flipped = [];
+        let g2Score = 0;
+        let g2Time = 0;
+        let g2Timer;
+
+        function initGame2() {
+            g2Score = 0; g2Time = 0;
+            document.getElementById('g2-score').innerText = g2Score;
+            document.getElementById('g2-time').innerText = g2Time;
+            g2Flipped = [];
+
+            clearInterval(g2Timer);
+            g2Timer = setInterval(() => {
+                g2Time++;
+                document.getElementById('g2-time').innerText = g2Time;
+            }, 1000);
+
+            let grid = document.getElementById('memory-grid');
+            grid.innerHTML = '';
+
+            // Shuffle
+            g2Cards = fruits.sort(() => 0.5 - Math.random());
+
+            g2Cards.forEach((fruit, i) => {
+                let card = document.createElement('div');
+                card.classList.add('memory-card');
+                card.dataset.val = fruit;
+                card.dataset.idx = i;
+
+                card.innerHTML = `
+                    <div class="back">🌸</div>
+                    <div class="front">${fruit}</div>
+                `;
+
+                card.onclick = () => flipCard(card);
+                grid.appendChild(card);
+            });
+        }
+
+        function flipCard(card) {
+            if (card.classList.contains('flip') || g2Flipped.length >= 2) return;
+
+            card.classList.add('flip');
+            g2Flipped.push(card);
+
+            if (g2Flipped.length === 2) {
+                if (g2Flipped[0].dataset.val === g2Flipped[1].dataset.val) {
+                    g2Score++;
+                    document.getElementById('g2-score').innerText = g2Score;
+                    g2Flipped = [];
+                    if (g2Score === 8) {
+                        clearInterval(g2Timer);
+                        setTimeout(() => showModal('modal-g2'), 500);
+                    }
+                } else {
+                    setTimeout(() => {
+                        g2Flipped[0].classList.remove('flip');
+                        g2Flipped[1].classList.remove('flip');
+                        g2Flipped = [];
+                    }, 800);
+                }
+            }
+        }
+
+        // --- Game 3: Word Search ---
+        const words = ["BEAUTIFUL", "LOVE", "FOREVER", "HAPPINESS", "MINE", "CUTE", "EVERYTHING"];
+        const gridLetters = [
+            ['H', 'F', 'O', 'R', 'E', 'V', 'E', 'R', 'Q', 'E'],
+            ['Z', 'A', 'W', 'X', 'C', 'B', 'N', 'M', 'L', 'V'],
+            ['C', 'D', 'P', 'G', 'J', 'K', 'L', 'P', 'O', 'E'],
+            ['A', 'U', 'S', 'P', 'D', 'F', 'G', 'H', 'V', 'R'],
+            ['Q', 'W', 'T', 'R', 'I', 'Y', 'U', 'O', 'E', 'Y'],
+            ['P', 'L', 'K', 'E', 'J', 'N', 'H', 'G', 'F', 'T'],
+            ['Z', 'X', 'C', 'V', 'B', 'N', 'E', 'M', 'Q', 'H'],
+            ['W', 'E', 'R', 'T', 'Y', 'U', 'I', 'S', 'O', 'I'],
+            ['M', 'I', 'N', 'E', 'P', 'A', 'S', 'D', 'S', 'N'],
+            ['B', 'E', 'A', 'U', 'T', 'I', 'F', 'U', 'L', 'G']
+        ];
+
+        let g3Score = 0;
+        let isSelecting = false;
+        let startCell = null;
+        let selection = [];
+        let foundWords = [];
+
+        function getPath(cell1, cell2) {
+            let r1 = parseInt(cell1.dataset.r);
+            let c1 = parseInt(cell1.dataset.c);
+            let r2 = parseInt(cell2.dataset.r);
+            let c2 = parseInt(cell2.dataset.c);
+
+            let path = [];
+            let dr = r2 - r1;
+            let dc = c2 - c1;
+
+            if (dr === 0 || dc === 0 || Math.abs(dr) === Math.abs(dc)) {
+                let steps = Math.max(Math.abs(dr), Math.abs(dc));
+                let stepR = dr === 0 ? 0 : dr / Math.abs(dr);
+                let stepC = dc === 0 ? 0 : dc / Math.abs(dc);
+
+                for (let i = 0; i <= steps; i++) {
+                    let r = r1 + i * stepR;
+                    let c = c1 + i * stepC;
+                    let el = document.querySelector(`.word-cell[data-r='${r}'][data-c='${c}']`);
+                    if (el) path.push(el);
+                }
+            }
+            return path;
+        }
+
+        function clearSelection() {
+            document.querySelectorAll('.word-cell.selected').forEach(el => {
+                if (!el.classList.contains('found')) {
+                    el.classList.remove('selected');
+                }
+            });
+            selection = [];
+        }
+
+        function initGame3() {
+            g3Score = 0;
+            document.getElementById('g3-score').innerText = g3Score;
+            let grid = document.getElementById('word-grid');
+            grid.innerHTML = '';
+            foundWords = [];
+
+            for (let r = 0; r < 10; r++) {
+                for (let c = 0; c < 10; c++) {
+                    let cell = document.createElement('div');
+                    cell.classList.add('word-cell');
+                    cell.innerText = gridLetters[r][c];
+                    cell.dataset.r = r;
+                    cell.dataset.c = c;
+
+                    // Mouse events
+                    cell.addEventListener('mousedown', startSelect);
+                    cell.addEventListener('mouseenter', enterSelect);
+                    // Touch events
+                    cell.addEventListener('touchstart', startSelectTouch, { passive: false });
+                    cell.addEventListener('touchmove', enterSelectTouch, { passive: false });
+
+                    grid.appendChild(cell);
+                }
+            }
+
+            document.addEventListener('mouseup', endSelect);
+            document.addEventListener('touchend', endSelect);
+        }
+
+        function startSelect(e) {
+            isSelecting = true;
+            startCell = e.target;
+            clearSelection();
+            selection = [startCell];
+            startCell.classList.add('selected');
+        }
+        function startSelectTouch(e) {
+            e.preventDefault();
+            let touch = e.touches[0];
+            let target = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (target && target.classList.contains('word-cell')) {
+                isSelecting = true;
+                startCell = target;
+                clearSelection();
+                selection = [startCell];
+                startCell.classList.add('selected');
+            }
+        }
+
+        function enterSelect(e) {
+            if (!isSelecting) return;
+            let currentCell = e.target;
+            updateSelection(currentCell);
+        }
+        function enterSelectTouch(e) {
+            if (!isSelecting) return;
+            e.preventDefault();
+            let touch = e.touches[0];
+            let target = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (target && target.classList.contains('word-cell')) {
+                updateSelection(target);
+            }
+        }
+
+        function updateSelection(currentCell) {
+            clearSelection();
+            selection = getPath(startCell, currentCell);
+            if (selection.length === 0) {
+                selection = [startCell];
+            }
+            selection.forEach(el => el.classList.add('selected'));
+        }
+
+        function endSelect() {
+            if (!isSelecting) return;
+            isSelecting = false;
+
+            let wordStr = selection.map(el => el.innerText).join('');
+            let revWordStr = selection.map(el => el.innerText).reverse().join('');
+
+            let found = words.find(w => w === wordStr || w === revWordStr);
+            if (found && !foundWords.includes(found)) {
+                foundWords.push(found);
+                selection.forEach(el => {
+                    el.classList.remove('selected');
+                    el.classList.add('found');
+                });
+                g3Score++;
+                document.getElementById('g3-score').innerText = g3Score;
+
+                if (g3Score === words.length) {
+                    setTimeout(() => showModal('modal-g3'), 500);
+                }
+            } else {
+                clearSelection();
+            }
+            startCell = null;
+        }
+    </script>
+</body>
+
+</html>
